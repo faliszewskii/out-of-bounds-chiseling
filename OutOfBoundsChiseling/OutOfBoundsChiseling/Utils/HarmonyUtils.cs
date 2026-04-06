@@ -1,0 +1,18 @@
+﻿namespace OutOfBoundsChiseling.Utils;
+
+public static class HarmonyUtils
+{
+    public static bool ShortCircuitReturn<T>(ref T result, T value)
+    {
+        result = value;
+        return false;
+    }
+    public static bool ShortCircuitVoid()
+    {
+        return false;
+    }
+    public static bool ContinueWithOriginal()
+    {
+        return true;
+    }
+}

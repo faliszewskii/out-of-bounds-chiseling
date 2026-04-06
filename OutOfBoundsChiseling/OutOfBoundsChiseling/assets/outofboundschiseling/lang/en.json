@@ -1,0 +1,5 @@
+{
+  "couldnt-place-bec": "Something occupies this block already",
+  "no-material-selected": "Current chisel has no material selected",
+  "no-material": "No available {0} to place new chiseled block"
+}

@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using OutOfBoundsChiseling.Events;
+using ChiselingQoLPatches.OutOfBoundsChiseling.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,18 +16,18 @@ using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 using VSSurvivalMod.Systems.ChiselModes;
 
-namespace OutOfBoundsChiseling.Systems.Microblock
+namespace ChiselingQoLPatches.OutOfBoundsChiseling
 {
     [HarmonyPatch(typeof(BlockEntityChisel))]
     [HarmonyPatch("OnBlockInteract")]
-    public static class BEChiselPatch
+    public static class BEChiselOnBlockInteractPatch
     {
-        static readonly MethodInfo m_OutOfBoundsChiseling = AccessTools.Method(typeof(BEChiselPatch), nameof(OutOfBoundsChiseling));
+        static readonly MethodInfo m_OutOfBoundsChiseling = AccessTools.Method(typeof(BEChiselOnBlockInteractPatch), nameof(OutOfBoundsChiseling));
 
         [HarmonyTranspiler]
         static IEnumerable<CodeInstruction> MyTranspiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator, MethodBase original)
         {
-            // execute OutOfBoundsChiseling function right after calculating voxelPos
+            // execute ChiselingQoLPatches function right after calculating voxelPos
             var found = false;
             CodeInstruction previousInstruction = null;
             var continueLabel = generator.DefineLabel();
@@ -56,7 +56,7 @@ namespace OutOfBoundsChiseling.Systems.Microblock
                 previousInstruction = instruction;
             }
             if (found is false)
-                throw new Exception("Didn't find a place to inject OutOfBoundsChiseling in BlockEntityChisel.OnBlockInteract!");
+                throw new Exception("Didn't find a place to inject ChiselingQoLPatches in BlockEntityChisel.OnBlockInteract!");
         }
 
         private static bool OutOfBoundsChiseling(this BlockEntityChisel __instance, IPlayer byPlayer, BlockSelection blockSel, bool isBreak, Vec3i voxelPos)
@@ -82,20 +82,20 @@ namespace OutOfBoundsChiseling.Systems.Microblock
                 Block atBlock = byPlayer.Entity.World.BlockAccessor.GetBlock(atBlockPos);
 
                 int blockId = GetCurrentMaterialBlockId(byPlayer);
-                if(blockId < 0)
+                if (blockId < 0)
                 {
                     blockId = __instance.BlockIds.First();
                 }
 
                 var bec = atBlock is BlockChisel ? byPlayer.Entity.Api.World.BlockAccessor.GetBlockEntity(atBlockPos) as BlockEntityChisel : null;
 
-                var playerHasMaterial = byPlayer.InventoryManager.Find((ItemSlot slot) => slot?.Itemstack?.Block is not null && slot.Itemstack.Id == blockId);
+                var playerHasMaterial = byPlayer.InventoryManager.Find((slot) => slot?.Itemstack?.Block is not null && slot.Itemstack.Id == blockId);
                 var blockHasMaterial = bec is not null ? bec.BlockIds.Contains(blockId) : false;
 
-                if (byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative && !playerHasMaterial && ! blockHasMaterial)
+                var config = byPlayer.Entity.Api.ModLoader.GetModSystem<ChiselingQoLPatchesModSystem>().config;
+                if (config.ConsumeBlockOnOutOfBounds && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative && !playerHasMaterial && !blockHasMaterial)
                 {
-                    var materialName = byPlayer.Entity.Api.World.BlockAccessor.GetBlock(blockId).Code.GetName();
-                    (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material", Lang.Get(OutOfBoundsChiselingModSystem.ModID + ":no-material", materialName));
+                    (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material"));
                     return true;
                 }
 
@@ -108,21 +108,21 @@ namespace OutOfBoundsChiseling.Systems.Microblock
                 {
                     if (!TryPlaceBEChisel(byPlayer.Entity, blockId, atBlockPos, out bec))
                     {
-                        (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "couldnt-place-bec", Lang.Get(OutOfBoundsChiselingModSystem.ModID + ":couldnt-place-bec"));
+                        (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "couldnt-place-bec", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":couldnt-place-bec"));
                         return false;
                     }
-                    OutOfBoundsChiselingModSystem.ClientNetworkChannel.SendPacket(new PlaceBEChiselPacket { blockId = blockId, atPos = atBlockPos });
+                    ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new PlaceBEChiselPacket { blockId = blockId, atPos = atBlockPos });
 
                     AccessTools.Method(typeof(BlockEntityChisel), "UpdateVoxel").Invoke(bec, [byPlayer, byPlayer.InventoryManager.ActiveHotbarSlot, addAtPos, facing, isBreak]);
 
                     if (isBEChiselEmpty(bec))
                     {
                         byPlayer.Entity.Api.World.BlockAccessor.SetBlock(0, atBlockPos);
-                        OutOfBoundsChiselingModSystem.ClientNetworkChannel.SendPacket(new SetBlockPacket { blockId = 0, atPos = atBlockPos });
+                        ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new SetBlockPacket { blockId = 0, atPos = atBlockPos });
                     }
-                    else
+                    else if (config.ConsumeBlockOnOutOfBounds && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
                     {
-                        OutOfBoundsChiselingModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = blockId, quantity = 1 });                        
+                        ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = blockId, quantity = 1 });
                     }
                 }
                 return true;
@@ -143,7 +143,7 @@ namespace OutOfBoundsChiseling.Systems.Microblock
                 bec.AddMaterial(block, out _, false);
                 if (bec.Api.Side == EnumAppSide.Client)
                 {
-                    OutOfBoundsChiselingModSystem.ClientNetworkChannel.SendPacket(new AddMaterialPacket { Pos = bec.Pos, BlockId = blockId });
+                    ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new AddMaterialPacket { Pos = bec.Pos, BlockId = blockId });
                 }
             }
             bec.SetNowMaterialId(blockId);
@@ -212,11 +212,12 @@ namespace OutOfBoundsChiseling.Systems.Microblock
         }
         internal static void OnTakeOutBlockPacket(IServerPlayer byPlayer, TakeOutBlockPacket packet)
         {
-            byPlayer.InventoryManager.Find((ItemSlot slot) =>
+            byPlayer.InventoryManager.Find((slot) =>
             {
-                if (slot.Itemstack.Block is not null && slot.Itemstack.Id == packet.blockId)
+                if (slot?.Itemstack?.Block is not null && slot.Itemstack.Id == packet.blockId)
                 {
                     slot.TakeOut(packet.quantity);
+                    byPlayer.InventoryManager.NotifySlot(byPlayer, slot);
                     slot.MarkDirty();
                     return true;
                 }

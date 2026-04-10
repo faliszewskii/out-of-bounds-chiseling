@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36915.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VintagestoryAPI", "..\vsapi\VintagestoryAPI.csproj", "{4FECED97-CF34-6314-FE31-8B0211B39589}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSSurvivalMod", "..\vssurvivalmod\VSSurvivalMod.csproj", "{09D42255-0AE0-B9B0-280B-8ADEF11B1FAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CakeBuild", "ChiselingQoLPatches\CakeBuild\CakeBuild.csproj", "{6D1ED165-8586-E2C8-5532-F4893D32FB94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChiselingQoLPatches", "ChiselingQoLPatches\ChiselingQoLPatches\ChiselingQoLPatches.csproj", "{1CEFF31F-01A9-752A-33CE-0F7117D5F09B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4FECED97-CF34-6314-FE31-8B0211B39589}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FECED97-CF34-6314-FE31-8B0211B39589}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FECED97-CF34-6314-FE31-8B0211B39589}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FECED97-CF34-6314-FE31-8B0211B39589}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09D42255-0AE0-B9B0-280B-8ADEF11B1FAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09D42255-0AE0-B9B0-280B-8ADEF11B1FAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09D42255-0AE0-B9B0-280B-8ADEF11B1FAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09D42255-0AE0-B9B0-280B-8ADEF11B1FAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1ED165-8586-E2C8-5532-F4893D32FB94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1ED165-8586-E2C8-5532-F4893D32FB94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1ED165-8586-E2C8-5532-F4893D32FB94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1ED165-8586-E2C8-5532-F4893D32FB94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CEFF31F-01A9-752A-33CE-0F7117D5F09B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CEFF31F-01A9-752A-33CE-0F7117D5F09B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CEFF31F-01A9-752A-33CE-0F7117D5F09B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CEFF31F-01A9-752A-33CE-0F7117D5F09B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0E2E27B-821A-42ED-8ADC-AFA33111979F}
+	EndGlobalSection
+EndGlobal

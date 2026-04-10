@@ -2,7 +2,7 @@
 using Vintagestory.API.MathTools;
 
 #nullable disable
-namespace OutOfBoundsChiseling.Events;
+namespace ChiselingQoLPatches.OutOfBoundsChiseling.Events;
 
 [ProtoContract]
 public class TakeOutBlockPacket

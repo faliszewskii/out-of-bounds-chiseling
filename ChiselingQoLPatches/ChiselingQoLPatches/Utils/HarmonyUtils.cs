@@ -1,4 +1,4 @@
-﻿namespace OutOfBoundsChiseling.Utils;
+﻿namespace ChiselingQoLPatches.Utils;
 
 public static class HarmonyUtils
 {

@@ -27,13 +27,14 @@ namespace ChiselingQoLPatches.AddMaterialAutomatically
                 var config = byPlayer.Entity.Api.ModLoader.GetModSystem<ChiselingQoLPatchesModSystem>().config;
                 if (config.UseBlocksFromInventory && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
                 {
-                    var playerHasMaterial = byPlayer.InventoryManager.Find(slot => slot?.Itemstack?.Block is not null && slot.Itemstack.Id == materialId);
+                    var orienatationInvariantBlockId = bec.Api.World.BlockAccessor.GetBlock(materialId).OnPickBlock(bec.Api.World, null)?.Id ?? materialId;
+                    var playerHasMaterial = byPlayer.InventoryManager.Find(slot => slot?.Itemstack?.Block is not null && slot.Itemstack.Id == orienatationInvariantBlockId);
                     if (!playerHasMaterial)
                     {
                         (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material"));
                         return false;
                     }
-                    ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = materialId, quantity = 1 });
+                    ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = orienatationInvariantBlockId, quantity = 1 });
                 }
                 SetCurrentMaterialToBEC(bec, materialId);            
             }

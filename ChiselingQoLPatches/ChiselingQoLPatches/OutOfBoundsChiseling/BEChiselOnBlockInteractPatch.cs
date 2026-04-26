@@ -115,6 +115,11 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
                 {
                     SetCurrentMaterialToBEC(bec, blockId);
                     AccessTools.Method(typeof(BlockEntityChisel), "UpdateVoxel").Invoke(bec, [byPlayer, byPlayer.InventoryManager.ActiveHotbarSlot, addAtPos, facing, isBreak]);
+                    if(config.UseBlocksFromInventory && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative && !blockHasMaterial)
+                    {
+                        ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = orienatationInvariantBlockId, quantity = 1 });
+
+                    }
                 }
                 else
                 {

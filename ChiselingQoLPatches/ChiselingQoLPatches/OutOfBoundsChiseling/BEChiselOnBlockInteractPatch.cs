@@ -100,7 +100,8 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
 
                 var bec = atBlock is BlockChisel ? byPlayer.Entity.Api.World.BlockAccessor.GetBlockEntity(atBlockPos) as BlockEntityChisel : null;
 
-                var playerHasMaterial = byPlayer.InventoryManager.Find((slot) => slot?.Itemstack?.Block is not null && slot.Itemstack.Id == blockId);
+                var orienatationInvariantBlockId = __instance.Api.World.BlockAccessor.GetBlock(blockId).OnPickBlock(__instance.Api.World, null)?.Id ?? blockId;
+                var playerHasMaterial = byPlayer.InventoryManager.Find(slot => slot?.Itemstack?.Block is not null && slot.Itemstack.Block.Id == orienatationInvariantBlockId);
                 var blockHasMaterial = bec is not null ? bec.BlockIds.Contains(blockId) : false;
 
                 var config = byPlayer.Entity.Api.ModLoader.GetModSystem<ChiselingQoLPatchesModSystem>().config;
@@ -133,7 +134,7 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
                     }
                     else if (config.UseBlocksFromInventory && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
                     {
-                        ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = blockId, quantity = 1 });
+                        ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = orienatationInvariantBlockId, quantity = 1 });
                     }
                 }
                 return true;

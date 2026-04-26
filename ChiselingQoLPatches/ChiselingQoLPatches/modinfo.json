@@ -5,9 +5,9 @@
   "authors": [
     "Cerulean Blue"
   ],
-  "description": "Chisel out of bounds of a block, automatically add materials from the inventory, get the materials back when all voxels have been removed and more!",
-  "version": "0.1.0",
+  "description": "Chisel out of bounds of a block, automatically add materials from the inventory, get the materials back when all voxels have been removed and more",
+  "version": "0.1.1",
   "dependencies": {
-    "game": "1.22"
+    "game": "1.22.0"
   }
 }

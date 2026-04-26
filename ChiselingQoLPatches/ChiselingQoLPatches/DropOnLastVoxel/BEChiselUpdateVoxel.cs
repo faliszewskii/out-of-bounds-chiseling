@@ -56,7 +56,7 @@ namespace ChiselingQoLPatches.DropOnLastVoxel
             if (!config.UseBlocksFromInventory || !config.DropMaterialsOnLastVoxel) return;
             if (__instance.Api.World.Side == EnumAppSide.Server && (byPlayer == null || byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative))
             {
-                ItemStack[] drops = [.. __instance.BlockIds.Select(id => new ItemStack(id, EnumItemClass.Block, 1, new(), __instance.Api.World))];
+                ItemStack[] drops = [.. __instance.BlockIds.Select(id => __instance.Api.World.BlockAccessor.GetBlock(id).OnPickBlock(__instance.Api.World, __instance.Pos))];
 
                 var pos = __instance.Pos;
                 foreach (var drop in drops)

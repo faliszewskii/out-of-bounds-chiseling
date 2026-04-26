@@ -15,6 +15,8 @@ using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 using VSSurvivalMod.Systems.ChiselModes;
+using static ChiselingQoLPatches.Common.Common;
+using ChiselingQoLPatches.AddMaterialAutomatically;
 
 namespace ChiselingQoLPatches.OutOfBoundsChiseling
 {
@@ -69,6 +71,15 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
             var modeData = __instance.GetChiselModeData(byPlayer);
             Vec3i addAtPos = voxelPos.Clone().Add(modeData.ChiselSize * facing.Normali.X, modeData.ChiselSize * facing.Normali.Y, modeData.ChiselSize * facing.Normali.Z);
 
+            // AutomaticallyAddMaterialToBec
+            if (!isBreak && modeData is OneByChiselMode or TwoByChiselMode or FourByChiselMode or EightByChiselModeData
+                && (addAtPos.X >= 0 && addAtPos.X < 16 && addAtPos.Y >= 0 && addAtPos.Y < 16 && addAtPos.Z >= 0 && addAtPos.Z < 16))
+            {
+                int blockId = GetCurrentMaterialBlockId(byPlayer);
+                AutomaticallyAddMaterialToBec.AddMaterialToBec(__instance, blockId, byPlayer);
+            }
+
+            // OutOfBoundsChiseling
             if (!isBreak && modeData is OneByChiselMode or TwoByChiselMode or FourByChiselMode or EightByChiselModeData
                 && (addAtPos.X < 0 || addAtPos.X >= 16 || addAtPos.Y < 0 || addAtPos.Y >= 16 || addAtPos.Z < 0 || addAtPos.Z >= 16))
             {
@@ -93,7 +104,7 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
                 var blockHasMaterial = bec is not null ? bec.BlockIds.Contains(blockId) : false;
 
                 var config = byPlayer.Entity.Api.ModLoader.GetModSystem<ChiselingQoLPatchesModSystem>().config;
-                if (config.ConsumeBlockOnOutOfBounds && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative && !playerHasMaterial && !blockHasMaterial)
+                if (config.UseBlocksFromInventory && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative && !playerHasMaterial && !blockHasMaterial)
                 {
                     (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material"));
                     return true;
@@ -120,7 +131,7 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
                         byPlayer.Entity.Api.World.BlockAccessor.SetBlock(0, atBlockPos);
                         ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new SetBlockPacket { blockId = 0, atPos = atBlockPos });
                     }
-                    else if (config.ConsumeBlockOnOutOfBounds && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
+                    else if (config.UseBlocksFromInventory && byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative)
                     {
                         ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = blockId, quantity = 1 });
                     }
@@ -135,19 +146,6 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
             return byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack.Attributes.GetInt("materialId", -1);
         }
 
-        private static void SetCurrentMaterialToBEC(BlockEntityChisel bec, int blockId)
-        {
-            Block block = bec.Api.World.GetBlock(blockId);
-            if (!bec.BlockIds.Contains(blockId))
-            {
-                bec.AddMaterial(block, out _, false);
-                if (bec.Api.Side == EnumAppSide.Client)
-                {
-                    ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new AddMaterialPacket { Pos = bec.Pos, BlockId = blockId });
-                }
-            }
-            bec.SetNowMaterialId(blockId);
-        }
 
         private static bool TryPlaceBEChisel(Entity byEntity, int blockId, BlockPos atPos, out BlockEntityChisel be)
         {
@@ -192,13 +190,6 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
             __instance.MarkDirty(true);
         }
 
-
-        internal static void OnAddMaterialPacket(IServerPlayer byPlayer, AddMaterialPacket packet)
-        {
-            var bec = (BlockEntityChisel)byPlayer.Entity.Api.World.BlockAccessor.GetBlockEntity(packet.Pos);
-            SetCurrentMaterialToBEC(bec, GetCurrentMaterialBlockId(byPlayer));
-        }
-
         internal static void OnPlaceBEChiselPacket(IServerPlayer byPlayer, PlaceBEChiselPacket packet)
         {
             if (!TryPlaceBEChisel(byPlayer.Entity, packet.blockId, packet.atPos, out _))
@@ -209,20 +200,6 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
         internal static void OnSetBlockPacket(IServerPlayer byPlayer, SetBlockPacket packet)
         {
             byPlayer.Entity.Api.World.BlockAccessor.SetBlock(packet.blockId, packet.atPos);
-        }
-        internal static void OnTakeOutBlockPacket(IServerPlayer byPlayer, TakeOutBlockPacket packet)
-        {
-            byPlayer.InventoryManager.Find((slot) =>
-            {
-                if (slot?.Itemstack?.Block is not null && slot.Itemstack.Id == packet.blockId)
-                {
-                    slot.TakeOut(packet.quantity);
-                    byPlayer.InventoryManager.NotifySlot(byPlayer, slot);
-                    slot.MarkDirty();
-                    return true;
-                }
-                return false;
-            });
-        }
+        }        
     }
 }

@@ -1,13 +1,13 @@
 {
   "type": "code",
-  "modid": "chiselingQoLPatches",
+  "modid": "chiselingqolpatches",
   "name": "Chiseling QoL Patches",
   "authors": [
     "Cerulean Blue"
   ],
   "description": "Chisel out of bounds of a block, automatically add materials from the inventory, get the materials back when all voxels have been removed and more!",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "dependencies": {
-    "game": "1.21"
+    "game": "1.22"
   }
 }

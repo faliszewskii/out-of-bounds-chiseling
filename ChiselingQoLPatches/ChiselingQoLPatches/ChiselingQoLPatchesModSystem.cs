@@ -14,6 +14,7 @@ using Vintagestory.API.Server;
 using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 using Vintagestory.Server;
+using static ChiselingQoLPatches.Common.Common;
 
 namespace ChiselingQoLPatches
 {
@@ -25,18 +26,9 @@ namespace ChiselingQoLPatches
         public static IClientNetworkChannel ClientNetworkChannel;
         public static IServerNetworkChannel ServerNetworkChannel;
 
-        public OutOfBoundsChiselingConfig config;
+        public ChiselingQoLPatchesConfig config;
 
         public ICoreClientAPI capi;
-
-        // TODO Try to move away from that much client-server communication (This might cause flickering rn)
-        // TODO Proper material block names in error
-        // TODO Rename to Chiseling utilities/fixes or sth similar
-        // TODO Show current material
-        // TODO If material not present in bec -> add to it
-        // TODO Picking should work also on already estabilished becs.
-        // TODO Player should be able to see currently selected material
-        // TODO Removing last voxel should make the block drop all its constituent blocks.
 
 
         public override void Start(ICoreAPI api)
@@ -64,10 +56,10 @@ namespace ChiselingQoLPatches
             base.StartServerSide(api);
 
             ServerNetworkChannel = api.Network.GetChannel(Mod.Info.ModID)
-                .SetMessageHandler<AddMaterialPacket>(BEChiselOnBlockInteractPatch.OnAddMaterialPacket)
+                .SetMessageHandler<AddMaterialPacket>(OnAddMaterialPacket)
                 .SetMessageHandler<PlaceBEChiselPacket>(BEChiselOnBlockInteractPatch.OnPlaceBEChiselPacket)
                 .SetMessageHandler<SetBlockPacket>(BEChiselOnBlockInteractPatch.OnSetBlockPacket)
-                .SetMessageHandler<TakeOutBlockPacket>(BEChiselOnBlockInteractPatch.OnTakeOutBlockPacket);
+                .SetMessageHandler<TakeOutBlockPacket>(OnTakeOutBlockPacket);
 
             TryToLoadConfig(api);
         }
@@ -80,9 +72,9 @@ namespace ChiselingQoLPatches
             ClientNetworkChannel = api.Network.GetChannel(Mod.Info.ModID)
                 .SetMessageHandler<ShowHotbarHudPacket>((ShowHotbarHudPacket p) => ItemChiselSetToolModePatch.OnShowHotbarHudPacket(capi, p));
 
-            config = new OutOfBoundsChiselingConfig();
-            config.ConsumeBlockOnOutOfBounds = api.World.Config.GetBool("ChiselingQoLPatches:ConsumeBlockOnExtension", config.ConsumeBlockOnOutOfBounds);
-            config.DropMaterials = api.World.Config.GetString("ChiselingQoLPatches:DropMaterials");
+            config = new ChiselingQoLPatchesConfig();
+            config.UseBlocksFromInventory = api.World.Config.GetBool("ChiselingQoLPatches:UseBlocksFromInventory", config.UseBlocksFromInventory);
+            config.DropMaterialsOnLastVoxel = api.World.Config.GetBool("ChiselingQoLPatches:DropMaterialsOnLastVoxel", config.DropMaterialsOnLastVoxel);
 
         }
 
@@ -94,23 +86,23 @@ namespace ChiselingQoLPatches
         {            
             try
             {
-                config = api.LoadModConfig<OutOfBoundsChiselingConfig>("OutOfBoundsChiselingConfig.json");
+                config = api.LoadModConfig<ChiselingQoLPatchesConfig>("ChiselingQoLPatches.json");
                 if (config == null)
                 {
-                    config = new OutOfBoundsChiselingConfig();
+                    config = new ChiselingQoLPatchesConfig();
                 }
                 //Save a copy of the mod config.
-                api.StoreModConfig<OutOfBoundsChiselingConfig>(config, "OutOfBoundsChiselingConfig.json");
+                api.StoreModConfig<ChiselingQoLPatchesConfig>(config, "ChiselingQoLPatches.json");
             }
             catch (Exception e)
             {
                 Mod.Logger.Error("Could not load config! Loading default settings instead.");
                 Mod.Logger.Error(e);
-                config = new OutOfBoundsChiselingConfig();
+                config = new ChiselingQoLPatchesConfig();
             }
 
-            api.World.Config.SetBool("ChiselingQoLPatches:ConsumeBlockOnExtension", config.ConsumeBlockOnOutOfBounds);
-            api.World.Config.SetString("ChiselingQoLPatches:DropMaterials", config.DropMaterials.ToString());
+            api.World.Config.SetBool("ChiselingQoLPatches:UseBlocksFromInventory", config.UseBlocksFromInventory);
+            api.World.Config.SetBool("ChiselingQoLPatches:DropMaterialsOnLastVoxel", config.DropMaterialsOnLastVoxel);
         }
     }
 }

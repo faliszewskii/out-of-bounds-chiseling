@@ -53,7 +53,7 @@ namespace ChiselingQoLPatches.DropOnLastVoxel
         public static void DropBECMaterials(this BlockEntityChisel __instance, IPlayer byPlayer)
         {
             var config = byPlayer.Entity.Api.ModLoader.GetModSystem<ChiselingQoLPatchesModSystem>().config;
-            if (config.DropMaterialsEnum == Config.DropMaterialsMode.None) return;
+            if (!config.UseBlocksFromInventory || !config.DropMaterialsOnLastVoxel) return;
             if (__instance.Api.World.Side == EnumAppSide.Server && (byPlayer == null || byPlayer.WorldData.CurrentGameMode != EnumGameMode.Creative))
             {
                 ItemStack[] drops = [.. __instance.BlockIds.Select(id => new ItemStack(id, EnumItemClass.Block, 1, new(), __instance.Api.World))];

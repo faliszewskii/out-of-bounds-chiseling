@@ -76,7 +76,15 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
                 && (addAtPos.X >= 0 && addAtPos.X < 16 && addAtPos.Y >= 0 && addAtPos.Y < 16 && addAtPos.Z >= 0 && addAtPos.Z < 16))
             {
                 int blockId = GetCurrentMaterialBlockId(byPlayer);
-                AutomaticallyAddMaterialToBec.AddMaterialToBec(__instance, blockId, byPlayer);
+                if(blockId < 0)
+                {
+                    (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material-selected", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material-selected"));
+                    return true;                    
+                }
+                if(!AutomaticallyAddMaterialToBec.AddMaterialToBec(__instance, blockId, byPlayer))
+                {
+                    return true;
+                }
             }
 
             // OutOfBoundsChiseling
@@ -95,7 +103,8 @@ namespace ChiselingQoLPatches.OutOfBoundsChiseling
                 int blockId = GetCurrentMaterialBlockId(byPlayer);
                 if (blockId < 0)
                 {
-                    blockId = __instance.BlockIds.First();
+                    (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material-selected", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material-selected"));
+                    return true;
                 }
 
                 var bec = atBlock is BlockChisel ? byPlayer.Entity.Api.World.BlockAccessor.GetBlockEntity(atBlockPos) as BlockEntityChisel : null;

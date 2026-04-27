@@ -34,7 +34,6 @@ namespace ChiselingQoLPatches.CurrentMaterialHud
                 }
                 if (materialIdBranch && instruction.opcode == OpCodes.Callvirt && previousInstruction?.opcode == OpCodes.Ldarg_1)
                 {
-                    yield return new CodeInstruction(OpCodes.Ldarg_0); 
                     yield return new CodeInstruction(OpCodes.Ldarg_2); 
                     yield return new CodeInstruction(OpCodes.Call, m_TriggerHotbarHudOnSetToolMode);
 
@@ -47,7 +46,7 @@ namespace ChiselingQoLPatches.CurrentMaterialHud
                 throw new Exception("Didn't find a place to inject the method!");
         }
 
-        public static void TriggerHotbarHudOnSetToolMode(this ItemChisel __instance, IPlayer byPlayer)
+        public static void TriggerHotbarHudOnSetToolMode(IPlayer byPlayer)
         {
             int slot = byPlayer.InventoryManager.ActiveHotbarSlotNumber;
             int materialId = byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack.Attributes.GetInt("materialId", -1);

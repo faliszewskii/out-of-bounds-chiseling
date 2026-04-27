@@ -31,7 +31,7 @@ namespace ChiselingQoLPatches.AddMaterialAutomatically
                     var playerHasMaterial = byPlayer.InventoryManager.Find(slot => slot?.Itemstack?.Block is not null && slot.Itemstack.Id == orienatationInvariantBlockId);
                     if (!playerHasMaterial)
                     {
-                        (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material"));
+                        (byPlayer.Entity.Api.World.Api as ICoreClientAPI)?.TriggerIngameError(byPlayer, "no-material-to-add", Lang.Get(ChiselingQoLPatchesModSystem.ModID + ":no-material-to-add"));
                         return false;
                     }
                     ChiselingQoLPatchesModSystem.ClientNetworkChannel.SendPacket(new TakeOutBlockPacket { blockId = orienatationInvariantBlockId, quantity = 1 });
